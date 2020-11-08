@@ -1,6 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 import torch.utils.data
 import torchvision
+import torchvision.transforms as transform
 
 from .coco import build as build_coco
 
@@ -22,4 +23,10 @@ def build_dataset(image_set, args):
         # to avoid making panopticapi required for coco
         from .coco_panoptic import build as build_coco_panoptic
         return build_coco_panoptic(image_set, args)
+    if args.dataset_file == "ade20k":
+        from encoding.datasets import ADE20KParsing
+        input_transform = transform.Compose([
+            transform.ToTensor(),
+            transform.Normalize([.485, .456, .406], [.229, .224, .225])])
+        return ADE20KParsing(transform=input_transform)
     raise ValueError(f'dataset {args.dataset_file} not supported')
